@@ -1,6 +1,9 @@
 "use strict";
 const mongoose = require("mongoose");
-const connectString = "mongodb://root:panda@localhost:27017";
+const  { db: {host,port,name,user,pass} } = require("../configs/config.mongo");
+// const connectString = "mongodb://root:panda@localhost:27017";
+console.log(process.env.DB_PASS);
+const connectString = `mongodb://${user}:${pass}@${host}:${port}`;
 const { countConnect } = require("../helpers/check.connect");
 class Database {
   constructor() {
@@ -12,7 +15,9 @@ class Database {
       mongoose.set("debug", { color: true });
     }
     mongoose
-      .connect(connectString)
+      .connect(connectString,{
+        maxPoolSize: 50,
+      })
       .then((_) => {
         console.log("Connected to db PRO",countConnect());
       })
