@@ -1,8 +1,11 @@
 "use strict";
 
-const shopModel = require("../models/shop.model");
-const brycpt = require("bcryptjs");
+const Shop = require("../models/shop.model");
+const brycpt = require("bcrypt");
 const crypto = require("crypto");
+const KeyTokenService = require("./keyToken.service");
+const { createTokenPair } = require("../auth/authUtils");
+const { getIntoData } = require("../utils");
 const RoleShop = {
   SHOP: "0000",
   WRITER: "0001",
@@ -10,11 +13,10 @@ const RoleShop = {
   ADMIN: "0003",
 };
 class AccessService {
-  static signUp = async ({ name, email, password }) => {
+  signUp = async ({ name, email, password }) => {
     try {
       //step 1: check if user exists
-
-      const holdelShop = await shopModel.findOne({ email }).lean();
+      const holdelShop = await Shop.findOne({ email }).lean();
       if (holdelShop) {
         return {
           code: "xxx",
@@ -24,23 +26,67 @@ class AccessService {
       }
       const salt = await brycpt.genSalt(10);
       password = await brycpt.hash(password, salt);
-      const newShop = new shopModel({
+      const newShop = await Shop.create({
         name,
         email,
         password,
         roles: [RoleShop.SHOP],
       });
+      console.log("newShop-----------------------", newShop);
+
       if (newShop) {
         const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
           modulusLength: 4096,
+          publicKeyEncoding: {
+            type: "pkcs1",
+            format: "pem",
+          },
+          privateKeyEncoding: {
+            type: "pkcs1",
+            format: "pem",
+          },
         });
-        console.log("privateKey", privateKey, "publicKey", publicKey);
+        console.log("privateKey--------------", privateKey);
+
+        const publicKeyString = await KeyTokenService.createKeyToken({
+          userID: newShop._id,
+          publicKey,
+        });
+        console.log("publicKeyString", publicKeyString);
+
+        if (!publicKeyString) {
+          return {
+            code: "xxx",
+            message: "Error creating publicKey",
+            status: "error",
+          };
+        }
+
+        const publicKeyObject = crypto.createPublicKey(publicKeyString);
+
+        const tokens = await createTokenPair(
+          { id: newShop._id, email },
+          publicKeyObject,
+          privateKey
+        );
+        console.log("tokens", tokens);
+
+        return {
+          code: "0000",
+          metadata: {
+            shop: getIntoData({
+              fileds: ["_id", "name", "email", "status", "roles"],
+              object: newShop,
+            }),
+            tokens,
+          },
+        };
       }
     } catch (error) {
+      console.log("error", error);
       return {
-        code: "xxx",
-        message: error.message,
-        status: "error",
+        code: 200,
+        metadata: null,
       };
     }
   };

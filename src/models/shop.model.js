@@ -1,14 +1,13 @@
-const mongoose = require("mongoose"); // Erase if already required
-const DOCUMENT_NAME = "User";
-const COLLECTIONS_NAME = "users";
+const { Types, Schema, model } = require("mongoose"); // Erase if already required
+const DOCUMENT_NAME = "Shop";
+const COLLECTIONS_NAME = "Shops";
 // Declare the Schema of the Mongo model
-var userSchema = new mongoose.Schema(
+var userSchema = new Schema(
   {
     name: {
       type: String,
       required: true,
       unique: true,
-      index: true,
     },
     email: {
       type: String,
@@ -41,4 +40,4 @@ var userSchema = new mongoose.Schema(
 );
 
 //Export the model
-module.exports = mongoose.model(DOCUMENT_NAME, userSchema);
+module.exports = model(DOCUMENT_NAME, userSchema);
