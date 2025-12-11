@@ -9,7 +9,7 @@ const dev = {
     port: process.env.DB_PORT || 27017,
     name: process.env.DB_NAME || "express-mongoose",
     user: process.env.DB_USER || "root",
-    pass: process.env.DB_PASS || "",
+    pass: process.env.DB_PASS || "panda",
   },
 };
 const test = {
@@ -21,7 +21,7 @@ const test = {
     port: process.env.DB_PORT || 27017,
     name: process.env.DB_NAME || "express-mongoose",
     user: process.env.DB_USER || "root",
-    pass: process.env.DB_PASS || "",
+    pass: process.env.DB_PASS || "panda",
   },
 };
 const pro = {
@@ -33,7 +33,7 @@ const pro = {
     port: process.env.DB_PORT || 27017,
     name: process.env.DB_NAME || "express-mongoose",
     user: process.env.DB_USER || "root",
-    pass: process.env.DB_PASS || "",
+    pass: process.env.DB_PASS || "panda",
   },
 };
 const config = {

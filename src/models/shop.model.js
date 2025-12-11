@@ -1,4 +1,4 @@
-const { Types, Schema, model } = require("mongoose"); // Erase if already required
+const { Schema, model } = require("mongoose"); // Erase if already required
 const DOCUMENT_NAME = "Shop";
 const COLLECTIONS_NAME = "Shops";
 // Declare the Schema of the Mongo model

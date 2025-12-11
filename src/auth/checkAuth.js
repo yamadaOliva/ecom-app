@@ -7,17 +7,38 @@ const HEADER = {
   AUTHORIZATION: "authorization",
 };
 
-const apiKey = (req, res, next) => {
+const apiKey = async (req, res, next) => {
   try {
     const key = req.headers[HEADER.API_KEY]?.toString();
     if (!key) return res.status(403).json({ message: "Forbidden" });
 
     //check obj key
-    const objKey = findById(key);
+    const objKey = await findById(key);
     if (!objKey) return res.status(403).json({ message: "Forbidden" });
-
     req.objKey = objKey;
+    req.test = "test";
     return next();
-  } catch (error) {}
+  } catch (error) {
+    console.log("error", error);
+  }
 };
-module.exports = { apiKey };
+
+const permission = (permission) => {
+  return (req, res, next) => {
+    if(!req.objKey.permissions){
+      return res.status(403).json({ message: "Permission denied" });
+    }
+    const validPermission = req.objKey.permissions.find((p) => p === permission);
+    if (!validPermission) return res.status(403).json({ message: "Permission denied" });
+    return next();
+  };
+};
+
+
+const asyncHandler = (fn) => {
+  return (req, res, next) => {
+    fn(req, res, next).catch(next);
+  };
+}
+
+module.exports = { apiKey, permission, asyncHandler};
